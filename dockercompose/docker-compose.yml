@@ -1,0 +1,52 @@
+version: '3' # ou version: '3'
+#--------------------------------------------------------------------
+
+#hedgedoc and bdd postgre-alpine + gatus without ssl 
+
+
+services:
+
+  reverseproxy:
+
+  image: nginx:alpine
+  container_name: reverseproxy
+  restart: always
+  ports:
+    - 80:80
+  volumes:
+    - ./nginx/core.conf:/etc/nginx/conf.d/core.conf
+    - ./nginx/proxy.conf:/etc/nginx/conf.d/proxy.conf
+    - ./nginx/hedgedoc.conf:/etc/nginx/conf.d/hedgedoc.conf
+  depends_on:
+    - app
+    - database
+
+  database:
+    image: postgres:13.4-alpine
+    container_name: database
+    environment:
+      - POSTGRES_USER=hedgedoc
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=hedgedoc
+    volumes:
+      - database:/var/lib/postgresql/data
+    restart: always
+  app:
+    # Make sure to use the latest release from https://hedgedoc.org/latest-release
+    image: quay.io/hedgedoc/hedgedoc:1.9.4
+    container_name: app
+    environment:
+      - CMD_DB_URL=postgres://hedgedoc:password@database:5432/hedgedoc
+      - CMD_DOMAIN=localhost
+      - CMD_URL_ADDPORT=true
+    volumes:
+      - uploads:/hedgedoc/public/uploads
+    restart: always
+    ports:
+    - "3000:3000"
+    depends_on:
+      - database
+
+volumes:
+  database:
+  uploads:

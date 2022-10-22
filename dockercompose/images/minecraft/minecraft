@@ -1,0 +1,15 @@
+FROM eclipse-temurin:17-jre-alpine
+
+RUN apk add --no-cache bash
+
+RUN mkdir /minecraft
+
+WORKDIR /minecraft
+
+RUN wget https://piston-data.mojang.com/v1/objects/f69c284232d7c7580bd89a5a4931c3581eae1378/server.jar
+
+RUN echo "eula=true" > eula.txt
+
+EXPOSE 25565
+
+CMD ["java", "-Xmx1024M", "-Xms1024M", "-jar", "server.jar", "nogui"]

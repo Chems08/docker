@@ -1,0 +1,35 @@
+alerting:
+  slack:
+    webhook-url: "https://twin.sh/health"
+    default-alert:
+      enabled: true
+      description: "Health check failed"
+      send-on-resolved: true
+      failure-threshold: 5
+      success-threshold: 5
+
+endpoints:
+  - name: Citizix Web
+    url: "https://citizix.com/health"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+      - "[RESPONSE_TIME] < 1000"
+    alerts:
+    - type: slack
+      failure-threshold: 3
+      success-threshold: 2
+  - name: Citizix Grafana
+    url: "https://grafana.citizix.com/"
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+      - "[RESPONSE_TIME] < 1000"
+    alerts:
+    - type: slack
+      failure-threshold: 3
+      success-threshold: 2
+
+storage:
+  type: sqlite
+  path: data.db
